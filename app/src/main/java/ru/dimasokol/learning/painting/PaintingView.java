@@ -20,9 +20,14 @@ import android.view.View;
  */
 
 public class PaintingView extends View {
+    private int tool;
 
-    private Bitmap mBitmap;
+    private Bitmap mBitmap, mBitmap1;
     private Canvas mBitmapCanvas;
+    int pointerId1, pointerId2;
+    int color;
+
+    float x0, x1, y0, y1;
 
     private Paint[] mPredefinedPaints;
     private int mNextPaint = 0;
@@ -30,6 +35,8 @@ public class PaintingView extends View {
     private Paint mEditModePaint = new Paint();
 
     private SparseArray<PointF> mLastPoints = new SparseArray<>(10);
+
+
     private SparseArray<Paint> mPaints = new SparseArray<>(10);
 
     public PaintingView(Context context) {
@@ -93,37 +100,63 @@ public class PaintingView extends View {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
 
-        switch (event.getActionMasked()) {
-            case MotionEvent.ACTION_DOWN:
-            case MotionEvent.ACTION_POINTER_DOWN:
-                int pointerId = event.getPointerId(event.getActionIndex());
-                mLastPoints.put(pointerId, new PointF(event.getX(event.getActionIndex()), event.getY(event.getActionIndex())));
-                mPaints.put(pointerId, mPredefinedPaints[mNextPaint % mPredefinedPaints.length]);
-                mNextPaint++;
-                return true;
-            case MotionEvent.ACTION_MOVE:
-                for (int i = 0; i < event.getPointerCount(); i++) {
-                    PointF last = mLastPoints.get(event.getPointerId(i));
-                    Paint paint = mPaints.get(event.getPointerId(i));
+        if (tool == 0) {
+            switch (event.getActionMasked()) {
+                case MotionEvent.ACTION_DOWN:
+                case MotionEvent.ACTION_POINTER_DOWN:
+                    int pointerId = event.getPointerId(event.getActionIndex());
+                    mLastPoints.put(pointerId, new PointF(event.getX(event.getActionIndex()), event.getY(event.getActionIndex())));
+                    mPaints.put(pointerId, mPredefinedPaints[mNextPaint % mPredefinedPaints.length]);
+                    mNextPaint++;
+                    return true;
+                case MotionEvent.ACTION_MOVE:
+                    for (int i = 0; i < event.getPointerCount(); i++) {
+                        PointF last = mLastPoints.get(event.getPointerId(i));
+                        Paint paint = mPaints.get(event.getPointerId(i));
 
-                    if (last != null) {
-                        float x = event.getX(i);
-                        float y = event.getY(i);
+                        if (last != null) {
+                            float x = event.getX(i);
+                            float y = event.getY(i);
 
-                        mBitmapCanvas.drawLine(last.x, last.y, x, y, paint);
-                        last.x = x;
-                        last.y = y;
+                            mBitmapCanvas.drawLine(last.x, last.y, x, y, paint);
+                            last.x = x;
+                            last.y = y;
+                        }
                     }
-                }
-                invalidate();
-                return true;
-            case MotionEvent.ACTION_POINTER_UP:
-                return true;
-            case MotionEvent.ACTION_UP:
-                mLastPoints.clear();
-                return true;
-        }
+                    invalidate();
+                    return true;
+                case MotionEvent.ACTION_POINTER_UP:
+                    return true;
+                case MotionEvent.ACTION_UP:
+                    mLastPoints.clear();
+                    return true;
+            }
+        } else if (tool == 1) {
+            switch (event.getActionMasked()) {
+                case MotionEvent.ACTION_DOWN:
+                    color = mNextPaint % mPredefinedPaints.length;
+                    mNextPaint++;
 
+                    mBitmap1 = mBitmap.copy(Bitmap.Config.ARGB_8888, false);
+
+                    x0 = event.getX();
+                    y0 = event.getY();
+
+                    return true;
+                case MotionEvent.ACTION_MOVE:
+                    mBitmapCanvas.drawColor(Color.BLACK, PorterDuff.Mode.CLEAR);
+                    mBitmapCanvas.drawBitmap(mBitmap1, 1, 1,null);
+
+                    x1 = event.getX();
+                    y1 = event.getY();
+                    mBitmapCanvas.drawRect(x0, y0, x1, y1, mPredefinedPaints[color]);
+
+                    invalidate();
+                    return true;
+                case MotionEvent.ACTION_UP:
+                    return true;
+            }
+        }
         return super.onTouchEvent(event);
     }
 
@@ -144,4 +177,12 @@ public class PaintingView extends View {
         mBitmapCanvas.drawColor(Color.BLACK, PorterDuff.Mode.CLEAR);
         invalidate();
     }
+
+    public void drawLines() {
+        tool = 0;
+    }
+    public void drawRectangle() {
+        tool = 1;
+    }
+
 }

@@ -6,6 +6,12 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
+import android.app.Activity;
+import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+
 public class MainActivity extends Activity {
 
     private PaintingView mPaintingView;
@@ -29,6 +35,12 @@ public class MainActivity extends Activity {
     public boolean onOptionsItemSelected(MenuItem item) {
 
         switch (item.getItemId()) {
+            case R.id.action_drawlines:
+                mPaintingView.drawLines();
+                break;
+            case R.id.action_drawrect:
+                mPaintingView.drawRectangle();
+                break;
             case R.id.action_clear:
                 mPaintingView.clear();
                 break;

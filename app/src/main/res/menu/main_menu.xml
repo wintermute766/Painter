@@ -2,6 +2,14 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
+        android:id="@+id/action_drawlines"
+        android:showAsAction="always"
+        android:title="@string/action_draw_lines"/>
+    <item
+        android:id="@+id/action_drawrect"
+        android:showAsAction="always"
+        android:title="@string/action_draw_rectangle"/>
+    <item
         android:id="@+id/action_clear"
         android:showAsAction="always"
         android:title="@string/action_clear"/>
